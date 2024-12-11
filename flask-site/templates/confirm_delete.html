@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Подтверждение удаления комнаты</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #4CAF50;
+        }
+        .warning {
+            color: #ff0000;
+            font-weight: bold;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .button.delete {
+            background-color: #ff0000;
+        }
+        .button.delete:hover {
+            background-color: #cc0000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Подтверждение удаления комнаты</h1>
+        <p class="warning">Внимание! Вы собираетесь удалить комнату "{{ room.name }}" вместе со всеми связанными бронированиями.</p>
+        <p>Количество связанных бронирований: {{ room.reservations|length }}</p>
+        <p>Это действие нельзя отменить. Вы уверены, что хотите продолжить?</p>
+        <form action="{{ url_for('delete_room', room_id=room.id) }}" method="POST">
+            <button type="submit" class="button delete">Удалить комнату и все бронирования</button>
+        </form>
+        <a href="{{ url_for('admin_panel') }}" class="button">Отмена</a>
+    </div>
+</body>
+</html>
+

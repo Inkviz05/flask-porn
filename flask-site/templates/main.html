@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Бронирование переговорной</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            flex-grow: 1;
+        }
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            font-size: 16px;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .info-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .info-section h3 {
+            margin-top: 0;
+            color: #4CAF50;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            margin-top: auto;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .modal-content button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .modal-content button:hover {
+            background-color: #45a049;
+        }
+        .download-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        .download-button:hover {
+            background-color: #45a049;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-right: 10px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+        .flash-messages p {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .flash-success {
+            background-color: #dff0d8;
+            border-color: #d6e9c6;
+            color: #3c763d;
+        }
+        .flash-danger {
+            background-color: #f2dede;
+            border-color: #ebccd1;
+            color: #a94442;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Сервис для бронирования переговорных комнат</h1>
+    </header>
+
+    <div class="container">
+        <h2>Бронирование переговорной</h2>
+
+        <form action="/main" method="POST">
+            <label for="room_id">Выберите комнату:</label>
+            <select name="room_id" id="room_id" required>
+                {% for room in rooms %}
+                    <option value="{{ room.id }}">{{ room.name }} (вместимость: {{ room.capacity }})</option>
+                {% endfor %}
+            </select><br><br>
+
+            <label for="start_date">Дата бронирования:</label>
+            <input type="date" id="start_date" name="start_date" required><br><br>
+
+            <label for="start_time">Время бронирования:</label>
+            <input type="time" id="start_time" name="start_time" required><br><br>
+
+            <label for="duration">Продолжительность (в минутах):</label>
+            <input type="number" id="duration" name="duration" required><br><br>
+
+            <button type="submit">Забронировать</button>
+        </form>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <p class="flash-{{ category }}">{{ message }}</p>
+                        {% if category == 'success' and 'Бронирование успешно!' in message %}
+                            <a href="{{ url_for('download_contract') }}" class="download-button">Скачать договор</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="info-section">
+            <h3>О нашем сервисе</h3>
+            <p>Наш сервис предназначен для удобного и быстрого бронирования переговорных комнат для различных нужд бизнеса. Мы предоставляем разнообразные комнаты с удобными условиями для ваших встреч, совещаний и рабочих сессий. Просто выберите подходящее время и комнату, и вы получите доступ к профессиональному пространству для вашего мероприятия.</p>
+
+            <h4>Преимущества нашего сервиса:</h4>
+            <ul>
+                <li>Удобный интерфейс для быстрого бронирования</li>
+                <li>Гибкость выбора времени и длительности</li>
+                <li>Доступность разнообразных комнат с разной вместимостью</li>
+                <li>Автоматическое создание договора бронирования</li>
+                <li>Простой процесс регистрации и авторизации</li>
+            </ul>
+        </div>
+
+        <a href="{{ url_for('profile') }}" class="button">Личный кабинет</a>
+        <a href="{{ url_for('logout') }}" class="button">Выйти</a>
+        <a href="{{ url_for('file_list') }}" class="button">Просмотр файлов</a>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Ваш сервис для бронирования переговорных комнат</p>
+    </footer>
+
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <h2>Бронирование успешно!</h2>
+            <p>Вы можете скачать договор бронирования.</p>
+            <button onclick="closeModal()">Закрыть</button>
+        </div>
+    </div>
+
+    <script>
+    function showModal() {
+        document.getElementById('confirmationModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('confirmationModal').style.display = 'none';
+    }
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages and 'Бронирование успешно!' in messages %}
+            showModal();
+        {% endif %}
+    {% endwith %}
+    </script>
+</body>
+</html>
+

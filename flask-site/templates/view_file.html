@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Просмотр файла: {{ file.name }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .content {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            padding: 10px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .content img {
+            max-width: 100%;
+            height: auto;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        {{ pygments_css | safe }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Просмотр файла: {{ file.name }}</h1>
+
+        {% if content is defined %}
+            {% if is_image %}
+                <img src="data:{{ file.mimetype }};base64,{{ content }}" alt="{{ file.name }}">
+            {% elif is_formatted %}
+                <div class="content">{{ content | safe }}</div>
+            {% else %}
+                <pre class="content">{{ content }}</pre>
+            {% endif %}
+        {% elif is_pdf %}
+            {% for image in images %}
+                <img src="data:image/png;base64,{{ image }}" alt="Страница PDF {{ loop.index }}">
+            {% endfor %}
+        {% else %}
+            <p>Предварительный просмотр недоступен для этого типа файла.</p>
+        {% endif %}
+
+        <a href="{{ url_for('download_file', file_id=file.id) }}" class="button">Скачать файл</a>
+        <a href="{{ url_for('file_list') }}" class="button">Вернуться к списку файлов</a>
+    </div>
+</body>
+</html>
+

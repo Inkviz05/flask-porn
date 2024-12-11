@@ -1,0 +1,13 @@
+Flask==2.3.2
+Flask-SQLAlchemy==3.0.5
+SQLAlchemy==2.0.19
+Werkzeug==2.3.6
+docx2txt==0.8
+PyMuPDF==1.25.0
+Pillow==11.0.0
+markdown==3.4.1
+beautifulsoup4==4.11.1
+pygments==2.14.0
+chardet==5.1.0
+python-docx==0.8.11
+mammoth==1.5.1

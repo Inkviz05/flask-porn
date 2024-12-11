@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Список файлов</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            flex-grow: 1;
+        }
+        .file-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+        .file-content {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            margin-top: auto;
+        }
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+        .flash-messages p {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .flash-success {
+            background-color: #dff0d8;
+            border-color: #d6e9c6;
+            color: #3c763d;
+        }
+        .flash-danger {
+            background-color: #f2dede;
+            border-color: #ebccd1;
+            color: #a94442;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Список файлов</h1>
+    </header>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <p class="flash-{{ category }}">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <h2>Доступные файлы:</h2>
+        {% if files %}
+        <table>
+            <tr>
+                <th>Название файла</th>
+                <th>Действия</th>
+            </tr>
+            {% for file in files %}
+            <tr>
+                <td>{{ file.name }}</td>
+                <td>
+                    <a href="{{ url_for('view_file', file_id=file.id) }}" class="button">Просмотреть</a>
+                    <a href="{{ url_for('download_file', file_id=file.id) }}" class="button">Скачать</a>
+                    {% if is_admin %}
+                    <form action="{{ url_for('delete_file', file_id=file.id) }}" method="POST" style="display: inline;">
+                        <button type="submit" class="button delete" onclick="return confirm('Вы уверены, что хотите удалить этот файл?');">Удалить</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+            <p>На данный момент нет доступных файлов.</p>
+        {% endif %}
+
+        <a href="{{ url_for('main') }}" class="button">Вернуться на главную</a>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Ваш сервис для бронирования переговорных комнат</p>
+    </footer>
+</body>
+</html>
+

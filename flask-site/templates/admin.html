@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Административная панель</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            flex-grow: 1;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .button.delete {
+            background-color: #f44336;
+            padding: 8px 16px;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+        .button.delete:hover {
+            background-color: #d32f2f;
+        }
+        form {
+            margin-top: 20px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"], input[type="number"], input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+            margin-top: auto;
+        }
+        .flash-messages {
+            margin-bottom: 20px;
+        }
+        .flash-messages p {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .flash-success {
+            background-color: #dff0d8;
+            border-color: #d6e9c6;
+            color: #3c763d;
+        }
+        .flash-danger {
+            background-color: #f2dede;
+            border-color: #ebccd1;
+            color: #a94442;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Административная панель</h1>
+    </header>
+
+    <div class="container">
+        <h2>Управление комнатами</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <p class="flash-{{ category }}">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <h3>Добавить новую комнату:</h3>
+        <form action="{{ url_for('add_room') }}" method="POST">
+            <input type="text" name="name" placeholder="Название комнаты" required>
+            <input type="number" name="capacity" placeholder="Вместимость" required>
+            <button type="submit" class="button">Добавить комнату</button>
+        </form>
+
+        <h3>Загрузить комнаты из файла CSV:</h3>
+        <form action="{{ url_for('upload_rooms') }}" method="POST" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".csv" required>
+            <button type="submit" class="button">Загрузить комнаты</button>
+        </form>
+
+        <h3>Список комнат:</h3>
+        <table>
+            <tr>
+                <th>Название</th>
+                <th>Вместимость</th>
+                <th>Действия</th>
+            </tr>
+            {% for room in rooms %}
+            <tr>
+                <td>{{ room.name }}</td>
+                <td>{{ room.capacity }}</td>
+                <td>
+                    <a href="{{ url_for('delete_room', room_id=room.id) }}" class="button delete">Удалить</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <h2>Управление файлами</h2>
+
+        <h3>Загрузить новый файл:</h3>
+        <form action="{{ url_for('upload_file') }}" method="POST" enctype="multipart/form-data">
+            <input type="file" name="file" required>
+            <button type="submit" class="button">Загрузить файл</button>
+        </form>
+
+        <h3>Список файлов:</h3>
+        <table>
+            <tr>
+                <th>Название файла</th>
+                <th>Действия</th>
+            </tr>
+            {% for file in files %}
+            <tr>
+                <td>{{ file.name }}</td>
+                <td>
+                    <a href="{{ url_for('download_file', file_id=file.id) }}" class="button">Скачать</a>
+                    <form action="{{ url_for('delete_file', file_id=file.id) }}" method="POST" style="display: inline;">
+                        <button type="submit" class="button delete" onclick="return confirm('Вы уверены, что хотите удалить этот файл?');">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <a href="{{ url_for('main') }}" class="button">Вернуться на главную</a>
+        <a href="{{ url_for('logout') }}" class="button">Выйти</a>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Ваш сервис для бронирования переговорных комнат</p>
+    </footer>
+</body>
+</html>
+
